@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturer Dashboard | MedChain</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .logout-btn {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            padding: 9px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logout-btn:hover {
+            background: #dc3545;
+            color: #ffffff;
+            border-color: #dc3545;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo">
+            <div class="logo-icon">+</div>
+            <span>MedChain</span>
+        </div>
+        <nav style="display: flex; align-items: center; gap: 20px;">
+            <a href="index.html" class="back-link">← Public Portal</a>
+            <button onclick="logoutManufacturer()" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Logout
+            </button>
+        </nav>
+    </div>
+
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <div>
+                <span>AUTHORIZED MANUFACTURER</span>
+                <h1>Medicine Registration</h1>
+                <p>Register a new medicine batch and generate its unique verification QR code.</p>
+            </div>
+            <div class="authority-badge">✓ Authorized Session</div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="registration-card">
+                <h2>Register Medicine</h2>
+                <p style="font-size: 13px; color: #718077; margin-bottom: 20px;">Enter the medicine batch details below.</p>
+
+                <label>Medicine Name</label>
+                <input type="text" id="medicineNameInput" placeholder="e.g. Paracetamol 500mg">
+
+                <label>Batch ID</label>
+                <input type="text" id="batchIdInput" placeholder="e.g. PCM500-001">
+
+                <label>Manufacturer</label>
+                <input type="text" id="manufacturerInput" placeholder="e.g. MedPharma Laboratories">
+
+                <label>Manufacturing Date</label>
+                <input type="date" id="manufacturingInput">
+
+                <label>Expiry Date</label>
+                <input type="date" id="expiryInput">
+
+                <button class="primary-button full-button" onclick="registerMedicine()">Register & Generate QR →</button>
+                <div id="registrationStatus" style="margin-top: 15px; font-size: 13px; color: #27704a;"></div>
+            </div>
+
+            <div class="qr-card">
+                <div id="qrPlaceholder">
+                    <div style="font-size: 32px; margin-bottom: 10px;">▦</div>
+                    <h3>Your QR Code</h3>
+                    <p style="font-size: 13px; color: #718077;">Register a medicine batch to generate its unique QR code.</p>
+                </div>
+
+                <div id="qrResult" style="display: none;">
+                    <h3 id="qrMedicineName" style="margin-bottom: 5px;"></h3>
+                    <p style="font-size: 13px; color: #718077; margin-bottom: 20px;">Batch ID: <span id="qrBatchId"></span></p>
+                    <div id="qrcode"></div>
+                    <button class="download-button" onclick="downloadQR()">Download QR Image</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-info">
+            <strong>Note:</strong> All new batch registrations update in local storage persistence automatically and are instantly verifiable via the public scan page.
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

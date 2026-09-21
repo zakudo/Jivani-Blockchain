@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedChain | Medicine Verification System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo">
+            <div class="logo-icon">+</div>
+            <span>MedChain</span>
+        </div>
+        <nav>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#verify">Verify</a>
+            <a href="login.html" class="nav-button">Manufacturer Portal</a>
+        </nav>
+    </div>
+
+    <section class="hero">
+        <div class="hero-text">
+            <span class="tag">BLOCKCHAIN × HEALTHCARE</span>
+            <h1>Verify your medicine. <span>Trust the source.</span></h1>
+            <p>MedChain uses blockchain-based traceability to help verify whether a medicine batch is registered and traceable through the authorized supply chain.</p>
+            <a href="#verify" class="primary-button">Scan & Verify →</a>
+        </div>
+    </section>
+
+    <!-- FEATURE 3: ANIMATED STATS COUNTER -->
+    <section class="stats-section">
+        <div class="stat-card">
+            <h2 class="counter" data-target="12450">0</h2>
+            <p>Medicines Verified</p>
+        </div>
+        <div class="stat-card">
+            <h2 class="counter" data-target="100">0</h2>
+            <p>% Traceability Rate</p>
+        </div>
+        <div class="stat-card">
+            <h2><span class="counter" data-target="0">0</span>.05s</h2>
+            <p>Verification Speed</p>
+        </div>
+    </section>
+
+    <section class="verify-section" id="verify">
+        <div class="section-heading">
+            <span>MEDICINE AUTHENTICATION</span>
+            <h2>Scan the QR code or enter Batch ID</h2>
+            <p>Use your camera to scan the QR code printed on the medicine box, or type the batch number manually.</p>
+        </div>
+
+        <div class="scanner-container">
+            <div class="scanner-card">
+                <div id="reader"></div>
+                <div id="scannerStatus" class="scanner-status">Align QR code within frame to scan</div>
+            </div>
+
+            <div class="or">OR</div>
+
+            <div class="manual-card">
+                <h3>Enter Batch ID</h3>
+                <p>Verify authenticity using the batch number printed on the package.</p>
+                <div class="input-group">
+                    <input type="text" id="batchInput" placeholder="e.g. PCM500-001" autocomplete="off">
+                    <button onclick="manualVerify()">Verify</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-section" id="how-it-works">
+        <div class="section-heading">
+            <span>HOW IT WORKS</span>
+            <h2>Blockchain-backed medicine tracking</h2>
+            <p>Every medicine batch follows a transparent on-chain path from manufacturer to patient.</p>
+        </div>
+
+        <div class="steps">
+            <div class="step-card">
+                <div class="step-number">01</div>
+                <h3>Manufacturer Register</h3>
+                <p>Authentic pharmaceutical brands record batch metadata on-chain.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">02</div>
+                <h3>QR Code Generated</h3>
+                <p>A unique QR code is assigned to each batch and printed on packaging.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">03</div>
+                <h3>Supply Chain Trace</h3>
+                <p>Distributors and pharmacies update handling and verification status.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">04</div>
+                <h3>Patient Verification</h3>
+                <p>Patients scan the code to instantly verify authenticity before consumption.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="trust-section">
+        <div>
+            <span>TRUST & TRANSPARENCY</span>
+            <h2>Protecting health with immutable record verification.</h2>
+        </div>
+        <div class="trust-points">
+            <div><strong>✓</strong> Anti-counterfeit verification</div>
+            <div><strong>✓</strong> Tamper-evident batch history</div>
+            <div><strong>✓</strong> Immediate verification results</div>
+        </div>
+    </section>
+
+    <!-- FEATURE 1 & 2: GLASSMORPHISM RESULT MODAL & TIMELINE -->
+    <div id="resultModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event)">
+        <div class="modal-card">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div id="modalContent"></div>
+    </div>
+</div>
+    <footer>
+        <p>© 2026 MedChain. All rights reserved.</p>
+        <p>Blockchain Anti-Counterfeit System</p>
+    </footer>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="script.js"></script>
+    <script src="3d-medicine.js"></script>
+</body>
+</html>

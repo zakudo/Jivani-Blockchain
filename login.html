@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturer Auth Portal | MedChain</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-wrapper {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: radial-gradient(circle at 50% 20%, #e2efe6 0%, #d5e5da 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 28px;
+            padding: 40px 35px;
+            box-shadow: 0 30px 60px rgba(18, 48, 35, 0.12);
+            z-index: 10;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-badge {
+            display: inline-block;
+            background: rgba(35, 77, 59, 0.1);
+            color: #234d3b;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .login-header h2 {
+            font-size: 28px;
+            color: #12281e;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .login-header p {
+            font-size: 13px;
+            color: #63756a;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #384a40;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid #d0dcd4;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 14px;
+            font-size: 14px;
+            color: #12281e;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #234d3b;
+            box-shadow: 0 0 0 4px rgba(35, 77, 59, 0.1);
+            background: #ffffff;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background: #234d3b;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(35, 77, 59, 0.25);
+            transition: all 0.25s;
+        }
+
+        .login-btn:hover {
+            background: #18382b;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px rgba(35, 77, 59, 0.3);
+        }
+
+        .error-banner {
+            background: #fcebeb;
+            border: 1px solid #f7c1c1;
+            color: #a82222;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 18px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .demo-credentials {
+            margin-top: 25px;
+            padding: 14px;
+            background: rgba(35, 77, 59, 0.05);
+            border-radius: 12px;
+            border: 1px dashed rgba(35, 77, 59, 0.2);
+            font-size: 12px;
+            color: #234d3b;
+            text-align: center;
+        }
+
+        .demo-credentials code {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo">
+            <div class="logo-icon">+</div>
+            <span>MedChain</span>
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="index.html#verify">Verify Medicine</a>
+        </nav>
+    </div>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <span class="login-badge">Enterprise Gateway</span>
+                <h2>Manufacturer Portal</h2>
+                <p>Authenticate with credentials to manage batch records</p>
+            </div>
+
+            <div id="loginError" class="error-banner">
+                ✕ Invalid License or Password
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>LICENSE / USERNAME</label>
+                    <input type="text" id="loginUser" placeholder="Enter pharma account ID" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>PASSWORD</label>
+                    <input type="password" id="loginPass" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="login-btn">Authenticate & Access</button>
+            </form>
+
+            <div class="demo-credentials">
+                🔒 <strong>Demo Access:</strong> ID: <code>admin</code> | Pass: <code>admin123</code>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
