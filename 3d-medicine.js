@@ -74,7 +74,7 @@
 
             ctx.fillStyle = "#ffffff";
             ctx.font = "900 70px Arial, sans-serif";
-            ctx.fillText("MEDCHAIN VERIFIED", 80, 115);
+            ctx.fillText("JIVANI VERIFIED", 80, 115);
 
             ctx.fillStyle = "#35c98a";
             ctx.font = "bold 45px Arial, sans-serif";
