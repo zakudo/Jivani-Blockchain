@@ -361,43 +361,56 @@ function startScanner() {
 // }
 
 async function registerMedicine() {
-    const name = document.getElementById("medicineNameInput").value.trim();
-    const batch = document.getElementById("batchIdInput").value.trim().toUpperCase();
-    const manufacturer = document.getElementById("manufacturerInput").value.trim();
-    const manufacturingDate = document.getElementById("manufacturingInput").value;
-    const expiryDate = document.getElementById("expiryInput").value;
+    const name = document.getElementById("medicineNameInput")?.value.trim();
+    const batch = document.getElementById("batchIdInput")?.value.trim().toUpperCase();
+    const manufacturer = document.getElementById("manufacturerInput")?.value.trim();
+    const manufacturingDate = document.getElementById("manufacturingInput")?.value;
+    const expiryDate = document.getElementById("expiryInput")?.value;
 
     if (!name || !batch || !manufacturer || !manufacturingDate || !expiryDate) {
-        alert("Please fill in all medicine details.");
+        alert("Please fill in all details.");
         return;
     }
 
     const regStatus = document.getElementById("registrationStatus");
-    if (regStatus) regStatus.innerHTML = "Connecting wallet & recording on Sepolia...";
+    if (regStatus) regStatus.innerHTML = "Step 1: Checking wallet...";
+    console.log("Step 1: Checking window.ethereum", typeof window.ethereum);
+
+    if (typeof window.ethereum === 'undefined') {
+        alert("MetaMask/Web3 wallet not found in browser!");
+        return;
+    }
 
     let realTxHash = generateMockTxHash();
 
-    // Web3 Write to Sepolia if MetaMask is present
     try {
-        if (typeof window.ethereum !== 'undefined') {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
-            const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        if (regStatus) regStatus.innerHTML = "Step 2: Requesting MetaMask accounts...";
+        console.log("Step 2: Requesting accounts...");
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        console.log("Connected accounts:", accounts);
 
-            const metadataJson = JSON.stringify({ name, manufacturer, manufactured: manufacturingDate, expiry: expiryDate });
-            if (regStatus) regStatus.innerHTML = "Confirm transaction in MetaMask...";
-            
-            const tx = await contract.registerBatch(batch, metadataJson);
-            if (regStatus) regStatus.innerHTML = "Mining on Sepolia blockchain...";
-            await tx.wait();
-            realTxHash = tx.hash;
-        }
+        if (regStatus) regStatus.innerHTML = "Step 3: Initializing Ethers provider...";
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+        const metadataJson = JSON.stringify({ name, manufacturer, manufactured: manufacturingDate, expiry: expiryDate });
+        if (regStatus) regStatus.innerHTML = "Step 4: Check MetaMask popup now!";
+        console.log("Step 4: Calling registerBatch contract method...");
+
+        const tx = await contract.registerBatch(batch, metadataJson);
+        console.log("Tx hash received:", tx.hash);
+
+        if (regStatus) regStatus.innerHTML = "Step 5: Mining on Sepolia...";
+        await tx.wait();
+        realTxHash = tx.hash;
+        console.log("Mining completed!");
     } catch (err) {
-        console.warn("Blockchain write skipped/failed, falling back to local DB record:", err);
+        console.error("Caught Web3 Error:", err);
+        alert("Web3 Error: " + (err.reason || err.message || JSON.stringify(err)));
     }
 
-    // Local DB update for UI sync
+    // Local DB update for UI sync fallback
     const medicines = getDatabase();
     medicines[batch] = {
         name: name,
@@ -413,27 +426,18 @@ async function registerMedicine() {
     if (qrContainer) {
         qrContainer.innerHTML = "";
         const verificationURL = window.location.origin + window.location.pathname.replace("manufacturer.html", "index.html") + "?batch=" + encodeURIComponent(batch);
-
         if (typeof QRCode !== "undefined") {
-            new QRCode(qrContainer, {
-                text: verificationURL,
-                width: 220,
-                height: 220
-            });
+            new QRCode(qrContainer, { text: verificationURL, width: 220, height: 220 });
         }
     }
 
-    const placeholder = document.getElementById("qrPlaceholder");
-    if (placeholder) placeholder.style.display = "none";
-
-    const resultCard = document.getElementById("qrResult");
-    if (resultCard) resultCard.style.display = "block";
-
-    if (document.getElementById("qrMedicineName")) document.getElementById("qrMedicineName").innerHTML = name;
+    if (document.getElementById("qrPlaceholder")) document.getElementById("qrPlaceholder").style.display = "none";
+    if (document.getElementById("qrResult")) document.getElementById("qrResult").style.display = "block";
+    if (document.getElementById("qrMedicineName")) document.getElementById("qrMedicineNamethis")?.innerHTML = name;
     if (document.getElementById("qrBatchId")) document.getElementById("qrBatchId").innerHTML = batch;
 
     if (regStatus) {
-        regStatus.innerHTML = `✓ Registered! Tx: <a href="https://sepolia.etherscan.io/tx/${realTxHash}" target="_blank">${realTxHash.slice(0,10)}...</a>`;
+        regStatus.innerHTML = `✓ Done! Tx: <a href="https://sepolia.etherscan.io/tx/${realTxHash}" target="_blank">${realTxHash.slice(0,10)}...</a>`;
     }
 }
 
