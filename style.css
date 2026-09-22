@@ -10,6 +10,10 @@ body {
     color: #17231d;
     overflow-x: hidden;
 }
+.custom-cursor-outline, 
+.medicine-cursor-wrapper {
+    pointer-events: none !important;
+}
 
 html {
     scroll-behavior: smooth;
