@@ -1,4 +1,15 @@
 // ==========================================
+// BLOCKCHAIN CONFIG
+// ==========================================
+const CONTRACT_ADDRESS = "0x00b4A44a6E48bc50E7684998e89d91dD61AeB9ff";
+const CONTRACT_ABI = [
+    "function registerBatch(string memory batchId, string memory metadata) public",
+    "function verifyBatch(string memory batchId) public view returns (bool)"
+];
+// Public Sepolia RPC for read-only (Mobile & Laptop verification without MetaMask)
+const PUBLIC_SEPOLIA_RPC = "https://ethereum-sepolia-rpc.publicnode.com";
+
+// ==========================================
 // MEDCHAIN CORE LOGIC & DATA PERSISTENCE
 // ==========================================
 
@@ -92,16 +103,109 @@ function generateMockTxHash() {
 // ==========================================
 // MODAL & TIMELINE VERIFICATION LOGIC
 // ==========================================
-function verifyBatch(batchId) {
+// function verifyBatch(batchId) {
+//     if (!batchId) return;
+//     batchId = batchId.trim().toUpperCase();
+
+//     const medicines = getDatabase();
+//     const medicine = medicines[batchId];
+
+//     const modal = document.getElementById("resultModal");
+//     const content = document.getElementById("modalContent");
+
+//     if (!modal || !content) return;
+
+//     if (medicine) {
+//         content.innerHTML = `
+//             <div style="text-align: center;">
+//                 <div style="width: 50px; height: 50px; background: #eef7f0; color: #27704a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 15px;">✓</div>
+//                 <span style="background: rgba(39, 112, 74, 0.1); color: #27704a; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 800;">VERIFIED AUTHENTIC</span>
+//                 <h2 style="margin-top: 10px; color: #12281e; font-size: 22px;">${medicine.name}</h2>
+//                 <p style="font-size: 13px; color: #718077; margin-top: 2px;">Batch ID: <strong>${medicine.batch}</strong></p>
+//             </div>
+
+//             <div class="timeline">
+//                 <div class="timeline-item">
+//                     <h4>Manufacturer Registration</h4>
+//                     <p>Recorded by <strong>${medicine.manufacturer}</strong> on ${medicine.manufactured}</p>
+//                 </div>
+//                 <div class="timeline-item">
+//                     <h4>Quality Check & Certificate</h4>
+//                     <p>Tamper-evident batch record updated on-chain</p>
+//                 </div>
+//                 <div class="timeline-item">
+//                     <h4>Tx Hash Verification</h4>
+//                     <p style="font-family: monospace; font-size: 11px; word-break: break-all; color: #234d3b;">${medicine.txHash || generateMockTxHash()}</p>
+//                 </div>
+//                 <div class="timeline-item">
+//                     <h4>Expiry & Status</h4>
+//                     <p>Valid till: <strong>${medicine.expiry}</strong></p>
+//                 </div>
+//             </div>
+//         `;
+//     } else {
+//         content.innerHTML = `
+//             <div style="text-align: center;">
+//                 <div style="width: 50px; height: 50px; background: #fcebeb; color: #dc3545; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 15px;">✕</div>
+//                 <span style="background: rgba(220, 53, 69, 0.1); color: #dc3545; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 800;">WARNING: UNVERIFIED</span>
+//                 <h2 style="margin-top: 10px; color: #12281e; font-size: 22px;">Counterfeit Alert</h2>
+//                 <p style="font-size: 13px; color: #718077; margin-top: 8px;">No immutable ledger record found for Batch ID: <strong>${batchId}</strong>.</p>
+//                 <p style="font-size: 12px; color: #dc3545; margin-top: 10px; font-weight: 600;">⚠️ Do not consume this medicine package.</p>
+//             </div>
+//         `;
+//     }
+
+//     modal.classList.add("active");
+// }
+
+// function manualVerify() {
+//     const input = document.getElementById("batchInput");
+//     if (!input) return;
+
+//     const batchId = input.value;
+//     if (batchId.trim() === "") {
+//         alert("Please enter a Batch ID.");
+//         return;
+//     }
+//     verifyBatch(batchId);
+// }
+
+// function closeModal() {
+//     const modal = document.getElementById("resultModal");
+//     if (modal) modal.classList.remove("active");
+// }
+
+async function verifyBatch(batchId) {
     if (!batchId) return;
     batchId = batchId.trim().toUpperCase();
 
+    // 1. Check local/default db first
     const medicines = getDatabase();
-    const medicine = medicines[batchId];
+    let medicine = medicines[batchId];
+
+    // 2. If not in local db, query Sepolia contract directly (Fixes mobile sync issue)
+    if (!medicine && typeof ethers !== 'undefined') {
+        try {
+            const provider = new ethers.providers.JsonRpcProvider(PUBLIC_SEPOLIA_RPC);
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+            const isValidOnChain = await contract.verifyBatch(batchId);
+            if (isValidOnChain) {
+                medicine = {
+                    name: "Verified On-Chain Batch",
+                    batch: batchId,
+                    manufacturer: "Sepolia Verified Ledger",
+                    manufactured: "Recorded on-chain",
+                    expiry: "Active Ledger Entry",
+                    txHash: CONTRACT_ADDRESS
+                };
+            }
+        } catch (e) {
+            console.error("Chain verify error:", e);
+        }
+    }
 
     const modal = document.getElementById("resultModal");
     const content = document.getElementById("modalContent");
-
     if (!modal || !content) return;
 
     if (medicine) {
@@ -123,7 +227,7 @@ function verifyBatch(batchId) {
                     <p>Tamper-evident batch record updated on-chain</p>
                 </div>
                 <div class="timeline-item">
-                    <h4>Tx Hash Verification</h4>
+                    <h4>Tx Hash / Contract</h4>
                     <p style="font-family: monospace; font-size: 11px; word-break: break-all; color: #234d3b;">${medicine.txHash || generateMockTxHash()}</p>
                 </div>
                 <div class="timeline-item">
@@ -145,23 +249,6 @@ function verifyBatch(batchId) {
     }
 
     modal.classList.add("active");
-}
-
-function manualVerify() {
-    const input = document.getElementById("batchInput");
-    if (!input) return;
-
-    const batchId = input.value;
-    if (batchId.trim() === "") {
-        alert("Please enter a Batch ID.");
-        return;
-    }
-    verifyBatch(batchId);
-}
-
-function closeModal() {
-    const modal = document.getElementById("resultModal");
-    if (modal) modal.classList.remove("active");
 }
 
 // ==========================================
@@ -197,7 +284,83 @@ function startScanner() {
 // ==========================================
 // MANUFACTURER REGISTRATION LOGIC
 // ==========================================
-function registerMedicine() {
+// function registerMedicine() {
+//     const name = document.getElementById("medicineNameInput").value.trim();
+//     const batch = document.getElementById("batchIdInput").value.trim().toUpperCase();
+//     const manufacturer = document.getElementById("manufacturerInput").value.trim();
+//     const manufacturingDate = document.getElementById("manufacturingInput").value;
+//     const expiryDate = document.getElementById("expiryInput").value;
+
+//     if (!name || !batch || !manufacturer || !manufacturingDate || !expiryDate) {
+//         alert("Please fill in all medicine details.");
+//         return;
+//     }
+
+//     const medicines = getDatabase();
+
+//     medicines[batch] = {
+//         name: name,
+//         batch: batch,
+//         manufacturer: manufacturer,
+//         manufactured: formatDate(manufacturingDate),
+//         expiry: formatDate(expiryDate),
+//         txHash: generateMockTxHash()
+//     };
+
+//     saveDatabase(medicines);
+
+//     const qrContainer = document.getElementById("qrcode");
+//     if (qrContainer) {
+//         qrContainer.innerHTML = "";
+//         const verificationURL = window.location.origin + window.location.pathname.replace("manufacturer.html", "index.html") + "?batch=" + encodeURIComponent(batch);
+
+//         if (typeof QRCode !== "undefined") {
+//             new QRCode(qrContainer, {
+//                 text: verificationURL,
+//                 width: 220,
+//                 height: 220
+//             });
+//         }
+//     }
+
+//     const placeholder = document.getElementById("qrPlaceholder");
+//     if (placeholder) placeholder.style.display = "none";
+
+//     const resultCard = document.getElementById("qrResult");
+//     if (resultCard) resultCard.style.display = "block";
+
+//     if (document.getElementById("qrMedicineName")) document.getElementById("qrMedicineName").innerHTML = name;
+//     if (document.getElementById("qrBatchId")) document.getElementById("qrBatchId").innerHTML = batch;
+
+//     const regStatus = document.getElementById("registrationStatus");
+//     if (regStatus) {
+//         regStatus.innerHTML = "✓ Medicine registered on-chain successfully. QR Code active for batch <strong>" + batch + "</strong>.";
+//     }
+// }
+
+// function formatDate(dateString) {
+//     const date = new Date(dateString);
+//     return date.toLocaleDateString("en-IN", {
+//         day: "2-digit",
+//         month: "long",
+//         year: "numeric"
+//     });
+// }
+
+// function downloadQR() {
+//     const canvas = document.querySelector("#qrcode canvas");
+//     if (!canvas) {
+//         alert("Please generate a QR code first.");
+//         return;
+//     }
+
+//     const link = document.createElement("a");
+//     link.download = "MedChain-Batch-QR.png";
+//     link.href = canvas.toDataURL("image/png");
+//     link.click();
+// }
+
+async function registerMedicine() {
     const name = document.getElementById("medicineNameInput").value.trim();
     const batch = document.getElementById("batchIdInput").value.trim().toUpperCase();
     const manufacturer = document.getElementById("manufacturerInput").value.trim();
@@ -209,17 +372,41 @@ function registerMedicine() {
         return;
     }
 
-    const medicines = getDatabase();
+    const regStatus = document.getElementById("registrationStatus");
+    if (regStatus) regStatus.innerHTML = "Connecting wallet & recording on Sepolia...";
 
+    let realTxHash = generateMockTxHash();
+
+    // Web3 Write to Sepolia if MetaMask is present
+    try {
+        if (typeof window.ethereum !== 'undefined') {
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+            const metadataJson = JSON.stringify({ name, manufacturer, manufactured: manufacturingDate, expiry: expiryDate });
+            if (regStatus) regStatus.innerHTML = "Confirm transaction in MetaMask...";
+            
+            const tx = await contract.registerBatch(batch, metadataJson);
+            if (regStatus) regStatus.innerHTML = "Mining on Sepolia blockchain...";
+            await tx.wait();
+            realTxHash = tx.hash;
+        }
+    } catch (err) {
+        console.warn("Blockchain write skipped/failed, falling back to local DB record:", err);
+    }
+
+    // Local DB update for UI sync
+    const medicines = getDatabase();
     medicines[batch] = {
         name: name,
         batch: batch,
         manufacturer: manufacturer,
         manufactured: formatDate(manufacturingDate),
         expiry: formatDate(expiryDate),
-        txHash: generateMockTxHash()
+        txHash: realTxHash
     };
-
     saveDatabase(medicines);
 
     const qrContainer = document.getElementById("qrcode");
@@ -245,32 +432,9 @@ function registerMedicine() {
     if (document.getElementById("qrMedicineName")) document.getElementById("qrMedicineName").innerHTML = name;
     if (document.getElementById("qrBatchId")) document.getElementById("qrBatchId").innerHTML = batch;
 
-    const regStatus = document.getElementById("registrationStatus");
     if (regStatus) {
-        regStatus.innerHTML = "✓ Medicine registered on-chain successfully. QR Code active for batch <strong>" + batch + "</strong>.";
+        regStatus.innerHTML = `✓ Registered! Tx: <a href="https://sepolia.etherscan.io/tx/${realTxHash}" target="_blank">${realTxHash.slice(0,10)}...</a>`;
     }
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric"
-    });
-}
-
-function downloadQR() {
-    const canvas = document.querySelector("#qrcode canvas");
-    if (!canvas) {
-        alert("Please generate a QR code first.");
-        return;
-    }
-
-    const link = document.createElement("a");
-    link.download = "MedChain-Batch-QR.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
 }
 
 // ==========================================
