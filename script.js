@@ -1,7 +1,7 @@
-// Remove custom cursor overlay completely
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('.custom-cursor-outline, .medicine-cursor-wrapper, [class*="cursor"]').forEach(e => e.remove());
+    document.querySelectorAll('.custom-cursor-outline, .medicine-cursor-wrapper').forEach(e => e.remove());
 });
+
 
 
 
@@ -559,5 +559,26 @@ document.addEventListener('click', function(e) {
             // fallback: hide known modal IDs/classes
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
         }
+    }
+});
+
+// Global Modal Close & Verify Fix
+document.addEventListener('DOMContentLoaded', () => {
+    // Close button handler (X or close class)
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.close, .modal-close, [data-dismiss="modal"]') || e.target.closest('.close, .modal-close, [data-dismiss="modal"]')) {
+            const modal = e.target.closest('.modal, [id*="modal"]');
+            if (modal) {
+                modal.style.display = 'none';
+            } else {
+                document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            }
+        }
+    });
+
+    // Verify button binding fallback
+    const verifyBtn = document.getElementById('verifyButton') || document.querySelector('.verify-btn');
+    if (verifyBtn && typeof verifyBatch === 'function') {
+        verifyBtn.addEventListener('click', verifyBatch);
     }
 });
