@@ -548,3 +548,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+// Global modal close handler for 'X' button or overlay
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.close, .modal-close') || e.target.closest('.close, .modal-close')) {
+        const modal = e.target.closest('.modal, [id*="modal"]');
+        if (modal) {
+            modal.style.display = 'none';
+        } else {
+            // fallback: hide known modal IDs/classes
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+    }
+});
