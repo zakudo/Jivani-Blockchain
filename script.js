@@ -1,3 +1,10 @@
+// Remove custom cursor overlay completely
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.custom-cursor-outline, .medicine-cursor-wrapper, [class*="cursor"]').forEach(e => e.remove());
+});
+
+
+
 // ==========================================
 // BLOCKCHAIN CONFIG
 // ==========================================
@@ -381,7 +388,7 @@ async function registerMedicine() {
         return;
     }
 
-    let realTxHash = generateMockTxHash();
+    let realTxHash = "0x" + Math.random().toString(16).substring(2, 42).padStart(40, '0');
 
     try {
         if (regStatus) regStatus.innerHTML = "Step 2: Requesting MetaMask accounts...";
@@ -411,16 +418,18 @@ async function registerMedicine() {
     }
 
     // Local DB update for UI sync fallback
-    const medicines = getDatabase();
+    const medicines = typeof getDatabase === 'function' ? getDatabase() : {};
     medicines[batch] = {
         name: name,
         batch: batch,
         manufacturer: manufacturer,
-        manufactured: formatDate(manufacturingDate),
-        expiry: formatDate(expiryDate),
+        manufactured: manufacturingDate,
+        expiry: expiryDate,
         txHash: realTxHash
     };
-    saveDatabase(medicines);
+    if (typeof saveDatabase === 'function') {
+        saveDatabase(medicines);
+    }
 
     const qrContainer = document.getElementById("qrcode");
     if (qrContainer) {
@@ -433,7 +442,7 @@ async function registerMedicine() {
 
     if (document.getElementById("qrPlaceholder")) document.getElementById("qrPlaceholder").style.display = "none";
     if (document.getElementById("qrResult")) document.getElementById("qrResult").style.display = "block";
-    if (document.getElementById("qrMedicineName")) document.getElementById("qrMedicineNamethis")?.innerHTML = name;
+    if (document.getElementById("qrMedicineName")) document.getElementById("qrMedicineName").innerHTML = name;
     if (document.getElementById("qrBatchId")) document.getElementById("qrBatchId").innerHTML = batch;
 
     if (regStatus) {
